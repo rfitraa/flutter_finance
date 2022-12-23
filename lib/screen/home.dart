@@ -1,81 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_finance/data/listdata.dart';
+import 'package:flutter_finance/data/model/add_date.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:money_formatter/money_formatter.dart';
+import '../data/utility.dart';
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class Home extends StatefulWidget {
+  const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  var history;
+  final box = Hive.box<Add_data>('data');
+  final List<String> day = [
+    'Monday',
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    'Friday',
+    'Saturday',
+    'Sunday'
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: SizedBox(height: 340, child: _head()),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Transaction History',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 19,
-                        color: Colors.black,
+          child: ValueListenableBuilder(
+              valueListenable: box.listenable(),
+              builder: (context, value, child) {
+                return CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: 340, child: _head()),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Transaction History',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 19,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              'See All',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    Text(
-                      'See All',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                        color: Colors.grey,
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          history = box.values.toList()[index];
+                          return getList(history, index);
+                        },
+                        childCount: box.length,
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
-            SliverList(
-                delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.asset(
-                      'images/${geter()[index].image!}',
-                      height: 40,
-                    ),
-                  ),
-                  title: Text(
-                    geter()[index].name!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 17,
-                    ),
-                  ),
-                  subtitle: Text(
-                    geter()[index].time!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  trailing: Text(
-                    geter()[index].fee!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 19,
-                      color: geter()[index].buy! ? Colors.red : Colors.green,
-                    ),
-                  ),
                 );
-              },
-              childCount: geter().length,
-            ))
-          ],
+              })),
+    );
+  }
+
+  Widget getList(Add_data history, int index) {
+    return Dismissible(
+        key: UniqueKey(),
+        onDismissed: (direction) {
+          history.delete();
+        },
+        child: get(index, history));
+  }
+
+  ListTile get(int index, Add_data history) {
+    return ListTile(
+      leading: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: Image.asset(
+          'images/${history.name}.png',
+          height: 40,
+        ),
+      ),
+      title: Text(
+        history.name,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 17,
+        ),
+      ),
+      subtitle: Text(
+        '${day[history.datetime.weekday - 1]}, ${history.datetime.year}-${history.datetime.day}-${history.datetime.month}',
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      trailing: Text(
+        history.amount,
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 19,
+          color: history.IN != 'Income' ? Colors.red : Colors.green,
         ),
       ),
     );
@@ -192,7 +231,7 @@ class Home extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        'Rp 500.000,00',
+                        'Rp ${total()}',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 25,
@@ -267,14 +306,14 @@ class Home extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Rp 700.000,00',
+                        'Rp ${income()}',
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                             color: Colors.white),
                       ),
                       Text(
-                        'Rp 200.000,00',
+                        'Rp ${expenses()}',
                         style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
