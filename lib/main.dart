@@ -6,6 +6,7 @@ import 'package:flutter_finance/screen/statistic.dart';
 import 'package:flutter_finance/widget/bottomnavigationbar.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_finance/screen/splash.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Bottom(),
+      home: SplashScreen(),
     );
   }
 }
