@@ -37,19 +37,19 @@ class _SplashScreenState extends State<SplashScreen> {
           children: <Widget>[
             Image.asset(
               "images/Money.png",
-              width: 250.0,
-              height: 250.0,
+              width: 150.0,
+              height: 150.0,
               fit: BoxFit.contain,
             ),
             SizedBox(
               height: 24.0,
             ),
             Text(
-              "My Finance",
+              "FINANCI&CAL",
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 30.0,
+                fontSize: 24.0,
               ),
             ),
           ],

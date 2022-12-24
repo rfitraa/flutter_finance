@@ -3,6 +3,8 @@ import 'package:flutter_finance/screen/add.dart';
 import 'package:flutter_finance/screen/home.dart';
 import 'package:flutter_finance/screen/statistic.dart';
 
+import '../screen/calculator.dart';
+
 class Bottom extends StatefulWidget {
   const Bottom({super.key});
 
@@ -12,7 +14,7 @@ class Bottom extends StatefulWidget {
 
 class _BottomState extends State<Bottom> {
   int index_color = 0;
-  List Screen = [Home(), Statistic(), Home(), Statistic()];
+  List Screen = [Home(), Statistic(), Calculator(), Statistic()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
